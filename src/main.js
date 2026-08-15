@@ -103,7 +103,7 @@ function roleLabel(handType) {
   }[handType];
 }
 
-cardInputs.append(...initialHand.map(createSelect));
+cardInputs.append(...initialHand.map((card, index) => createSelect(index, card)));
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
