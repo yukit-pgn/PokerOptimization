@@ -32,5 +32,11 @@ assert.equal(
   12800 * payoutTable.highLow.winProbabilityByStreak["6"],
 );
 assert.equal(effectivePayout("royal_flush", 200, payoutTable.highLow.winProbabilityByStreak), 200);
+assert.equal(
+  effectivePayout("four_of_a_kind", 200, payoutTable.highLow.winProbabilityByStreak, 7200),
+  6400 * payoutTable.highLow.winProbabilityByStreak["5"],
+);
+assert.equal(effectivePayout("royal_flush", 10000, payoutTable.highLow.winProbabilityByStreak, 7200), 0);
+assert.equal(effectivePayout("four_of_a_kind", 7200, payoutTable.highLow.winProbabilityByStreak, 7200), 0);
 
 console.log("poker tests passed");

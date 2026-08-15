@@ -12,6 +12,9 @@ const selectedHandElement = document.querySelector("#selected-hand");
 const cardTable = document.querySelector("#card-table");
 const resetHandButton = document.querySelector("#reset-hand");
 const useHighLowCheckbox = document.querySelector("#use-high-low");
+const useMaximumPayoutCheckbox = document.querySelector("#use-maximum-payout");
+const maximumPayoutField = document.querySelector("#maximum-payout-field");
+const maximumPayoutInput = document.querySelector("#maximum-payout");
 let hand = [];
 
 function labelForCard(card) {
@@ -31,7 +34,7 @@ function renderDecisionCards(cards, keepIndices) {
   }).join("");
 }
 
-function renderResult(hand, optimization, payoutForHand, showHighLowPayouts) {
+function renderResult(hand, optimization, payoutForHand, showHighLowPayouts, maximumPayout) {
   const { best } = optimization;
   const cards = renderDecisionCards(hand, best.keepIndices);
   const bestWinRate = (winningOutcomeCount(best.outcomeCounts, payoutForHand) / best.outcomeCount) * 100;
@@ -57,13 +60,13 @@ function renderResult(hand, optimization, payoutForHand, showHighLowPayouts) {
   const highLowPayouts = Object.entries(payoutTable.payouts)
     .filter(([, basePayout]) => basePayout > 0)
     .map(([handType, basePayout]) => `
-      <div><dt>${roleLabel(handType)}</dt><dd>${highLowPayoutForHand(handType).toFixed(4)}${handType === "royal_flush" ? " <small>（ハイ＆ローなし）</small>" : ""}</dd>
+      <div><dt>${roleLabel(handType)}</dt><dd>${payoutForHand(handType).toFixed(4)}${handType === "royal_flush" ? " <small>（ハイ＆ローなし）</small>" : ""}</dd>
     </div>
     `)
     .join("");
   const highLowPayoutSection = showHighLowPayouts ? `
     <section class="high-low-payouts">
-      <h2>ハイ＆ロー後の役別賞金期待値</h2>
+      <h2>ハイ＆ロー後${maximumPayout === null ? "" : "（上限適用後）"}の役別賞金期待値</h2>
       <dl>${highLowPayouts}</dl>
     </section>
   ` : "";
@@ -108,15 +111,17 @@ function winningOutcomeCount(outcomeCounts, payoutForHand) {
   );
 }
 
-function basePayoutForHand(handType) {
-  return payoutTable.payouts[handType] ?? 0;
+function basePayoutForHand(handType, maximumPayout = null) {
+  const basePayout = payoutTable.payouts[handType] ?? 0;
+  return maximumPayout !== null && basePayout >= maximumPayout ? 0 : basePayout;
 }
 
-function highLowPayoutForHand(handType) {
+function highLowPayoutForHand(handType, maximumPayout = null) {
   return effectivePayout(
     handType,
     payoutTable.payouts[handType] ?? 0,
     payoutTable.highLow.winProbabilityByStreak,
+    maximumPayout,
   );
 }
 
@@ -192,6 +197,14 @@ resetHandButton.addEventListener("click", () => {
   renderCardTable();
 });
 
+function updateMaximumPayoutField() {
+  maximumPayoutField.hidden = !useMaximumPayoutCheckbox.checked;
+  maximumPayoutInput.disabled = !useMaximumPayoutCheckbox.checked;
+}
+
+useMaximumPayoutCheckbox.addEventListener("change", updateMaximumPayoutField);
+updateMaximumPayoutField();
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   error.textContent = "";
@@ -212,11 +225,26 @@ form.addEventListener("submit", (event) => {
   button.disabled = true;
   button.textContent = "計算中…";
   const useHighLow = useHighLowCheckbox.checked;
-  const payoutForHand = useHighLow ? highLowPayoutForHand : basePayoutForHand;
+  const maximumPayout = useMaximumPayoutCheckbox.checked ? Number(maximumPayoutInput.value) : null;
+  if (maximumPayout !== null && (!Number.isFinite(maximumPayout) || maximumPayout < 0)) {
+    button.disabled = false;
+    button.textContent = "最適な交換を計算";
+    error.textContent = "賞金額の最大値には0以上の数値を入力してください。";
+    return;
+  }
+  const payoutForHand = useHighLow
+    ? (handType) => highLowPayoutForHand(handType, maximumPayout)
+    : (handType) => basePayoutForHand(handType, maximumPayout);
   // Let the loading label paint before the exhaustive calculation starts.
   window.setTimeout(() => {
     try {
-      renderResult(hand, optimizeDraw(hand, payoutTable.payouts, payoutForHand), payoutForHand, useHighLow);
+      renderResult(
+        hand,
+        optimizeDraw(hand, payoutTable.payouts, payoutForHand),
+        payoutForHand,
+        useHighLow,
+        maximumPayout,
+      );
     } finally {
       button.disabled = false;
       button.textContent = "最適な交換を計算";

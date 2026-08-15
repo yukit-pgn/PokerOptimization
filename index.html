@@ -27,6 +27,10 @@
           </div>
           <p id="form-error" class="error" role="alert"></p>
           <label class="high-low-toggle"><input id="use-high-low" type="checkbox" checked /> ハイ＆ローを考慮する</label>
+          <div class="maximum-payout-setting">
+            <label class="high-low-toggle"><input id="use-maximum-payout" type="checkbox" /> 賞金額の最大値を設定</label>
+            <label id="maximum-payout-field" class="maximum-payout-field" hidden>最大値（この値以上は対象外）<input id="maximum-payout" type="number" min="0" step="1" value="10000" inputmode="numeric" /></label>
+          </div>
           <button id="calculate-button" type="submit">最適な交換を計算</button>
         </form>
       </section>
