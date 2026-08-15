@@ -146,7 +146,7 @@ function compareOptions(left, right) {
  * Discarded cards are excluded from the draw deck, so all draws use the 48
  * cards not in the original hand.
  */
-export function optimizeDraw(hand, payouts) {
+export function optimizeDraw(hand, payouts, payoutForHand = (handType) => payouts[handType] ?? 0) {
   validateHand(hand);
   const dealtIds = new Set(hand.map(cardId));
   const drawDeck = createDeck().filter((card) => !dealtIds.has(cardId(card)));
@@ -162,7 +162,7 @@ export function optimizeDraw(hand, payouts) {
 
     for (const drawnCards of combinations(drawDeck, discardIndices.length)) {
       const handType = classifyHandUnchecked([...keptCards, ...drawnCards]);
-      totalPayout += payouts[handType] ?? 0;
+      totalPayout += payoutForHand(handType);
       outcomeCounts[handType] += 1;
       outcomeCount += 1;
     }

@@ -1,4 +1,5 @@
 import payoutTable from "./config/payout-table.json";
+import { effectivePayout } from "./lib/high-low.js";
 import { RANKS, SUITS, cardId, optimizeDraw, validateHand } from "./lib/poker.js";
 import "./styles.css";
 
@@ -10,6 +11,7 @@ const button = document.querySelector("#calculate-button");
 const selectedHandElement = document.querySelector("#selected-hand");
 const cardTable = document.querySelector("#card-table");
 const resetHandButton = document.querySelector("#reset-hand");
+const useHighLowCheckbox = document.querySelector("#use-high-low");
 let hand = [];
 
 function labelForCard(card) {
@@ -29,22 +31,22 @@ function renderDecisionCards(cards, keepIndices) {
   }).join("");
 }
 
-function renderResult(hand, optimization) {
+function renderResult(hand, optimization, payoutForHand) {
   const { best } = optimization;
   const cards = renderDecisionCards(hand, best.keepIndices);
-  const bestWinRate = (winningOutcomeCount(best.outcomeCounts) / best.outcomeCount) * 100;
+  const bestWinRate = (winningOutcomeCount(best.outcomeCounts, payoutForHand) / best.outcomeCount) * 100;
   const winningOutcomes = Object.entries(best.outcomeCounts)
-    .filter(([handType, count]) => count > 0 && (payoutTable.payouts[handType] ?? 0) > 0)
+    .filter(([handType, count]) => count > 0 && payoutForHand(handType) > 0)
     .map(([handType, count]) => {
       const probability = (count / best.outcomeCount) * 100;
-      const contribution = (count / best.outcomeCount) * payoutTable.payouts[handType];
+      const contribution = (count / best.outcomeCount) * payoutForHand(handType);
       return `<li><strong>${roleLabel(handType)}</strong><span>${count.toLocaleString()}通り</span><span>確率 ${probability.toFixed(4)}%</span><span>期待値 ${contribution.toFixed(4)}</span></li>`;
     })
     .join("");
   const alternativeOptions = optimization.options.slice(1).map((option) => {
     const difference = option.expectedValue - best.expectedValue;
     const formattedDifference = `${difference >= 0 ? "+" : ""}${difference.toFixed(4)}`;
-    const winRate = (winningOutcomeCount(option.outcomeCounts) / option.outcomeCount) * 100;
+    const winRate = (winningOutcomeCount(option.outcomeCounts, payoutForHand) / option.outcomeCount) * 100;
     return `
       <article class="alternative-option">
         <div class="recommendation alternative-cards">${renderDecisionCards(hand, option.keepIndices)}</div>
@@ -52,6 +54,13 @@ function renderResult(hand, optimization) {
       </article>
     `;
   }).join("");
+  const highLowPayouts = Object.entries(payoutTable.payouts)
+    .filter(([, basePayout]) => basePayout > 0)
+    .map(([handType, basePayout]) => `
+      <div><dt>${roleLabel(handType)}</dt><dd>${highLowPayoutForHand(handType).toFixed(4)}${handType === "royal_flush" ? " <small>（ハイ＆ローなし）</small>" : ""}</dd>
+    </div>
+    `)
+    .join("");
 
   result.innerHTML = `
     <h2>最適な交換</h2>
@@ -61,6 +70,7 @@ function renderResult(hand, optimization) {
       <div><dt>成功率</dt><dd>${bestWinRate.toFixed(4)}%</dd></div>
       <div><dt>抽選通り数</dt><dd>${best.outcomeCount.toLocaleString()}通り</dd></div>
     </dl>
+    <section class="high-low-payouts"><h3>ハイ＆ロー後の役別賞金期待値</h3><dl>${highLowPayouts}</dl></section>
     ${winningOutcomes ? `<details><summary>賞金が発生する役の内訳</summary><ul class="outcome-list">${winningOutcomes}</ul></details>` : ""}
     <details class="alternatives"><summary>ほかの交換パターンの期待値を確認</summary><div class="alternative-options">${alternativeOptions}</div></details>
   `;
@@ -83,11 +93,19 @@ function roleLabel(handType) {
   }[handType];
 }
 
-function winningOutcomeCount(outcomeCounts) {
+function winningOutcomeCount(outcomeCounts, payoutForHand) {
   return Object.entries(outcomeCounts).reduce(
-    (total, [handType, count]) => total + ((payoutTable.payouts[handType] ?? 0) > 0 ? count : 0),
+    (total, [handType, count]) => total + (payoutForHand(handType) > 0 ? count : 0),
     0,
   );
+}
+
+function basePayoutForHand(handType) {
+  return payoutTable.payouts[handType] ?? 0;
+}
+
+function highLowPayoutForHand(handType) {
+  return effectivePayout(handType, payoutTable.payouts[handType] ?? 0);
 }
 
 function renderSelection() {
@@ -181,10 +199,11 @@ form.addEventListener("submit", (event) => {
 
   button.disabled = true;
   button.textContent = "計算中…";
+  const payoutForHand = useHighLowCheckbox.checked ? highLowPayoutForHand : basePayoutForHand;
   // Let the loading label paint before the exhaustive calculation starts.
   window.setTimeout(() => {
     try {
-      renderResult(hand, optimizeDraw(hand, payoutTable.payouts));
+      renderResult(hand, optimizeDraw(hand, payoutTable.payouts, payoutForHand), payoutForHand);
     } finally {
       button.disabled = false;
       button.textContent = "最適な交換を計算";
