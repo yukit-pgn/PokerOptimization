@@ -31,7 +31,7 @@ function renderDecisionCards(cards, keepIndices) {
   }).join("");
 }
 
-function renderResult(hand, optimization, payoutForHand) {
+function renderResult(hand, optimization, payoutForHand, showHighLowPayouts) {
   const { best } = optimization;
   const cards = renderDecisionCards(hand, best.keepIndices);
   const bestWinRate = (winningOutcomeCount(best.outcomeCounts, payoutForHand) / best.outcomeCount) * 100;
@@ -61,18 +61,26 @@ function renderResult(hand, optimization, payoutForHand) {
     </div>
     `)
     .join("");
+  const highLowPayoutSection = showHighLowPayouts ? `
+    <section class="high-low-payouts">
+      <h2>ハイ＆ロー後の役別賞金期待値</h2>
+      <dl>${highLowPayouts}</dl>
+    </section>
+  ` : "";
 
   result.innerHTML = `
-    <h2>最適な交換</h2>
-    <div class="recommendation">${cards}</div>
-    <dl class="summary">
-      <div><dt>期待値</dt><dd>${best.expectedValue.toFixed(4)}</dd></div>
-      <div><dt>成功率</dt><dd>${bestWinRate.toFixed(4)}%</dd></div>
-      <div><dt>抽選通り数</dt><dd>${best.outcomeCount.toLocaleString()}通り</dd></div>
-    </dl>
-    <section class="high-low-payouts"><h3>ハイ＆ロー後の役別賞金期待値</h3><dl>${highLowPayouts}</dl></section>
-    ${winningOutcomes ? `<details><summary>賞金が発生する役の内訳</summary><ul class="outcome-list">${winningOutcomes}</ul></details>` : ""}
-    <details class="alternatives"><summary>ほかの交換パターンの期待値を確認</summary><div class="alternative-options">${alternativeOptions}</div></details>
+    <section class="optimal-result">
+      <h2>最適な交換</h2>
+      <div class="recommendation">${cards}</div>
+      <dl class="summary">
+        <div><dt>期待値</dt><dd>${best.expectedValue.toFixed(4)}</dd></div>
+        <div><dt>成功率</dt><dd>${bestWinRate.toFixed(4)}%</dd></div>
+        <div><dt>抽選通り数</dt><dd>${best.outcomeCount.toLocaleString()}通り</dd></div>
+      </dl>
+      ${winningOutcomes ? `<details><summary>賞金が発生する役の内訳</summary><ul class="outcome-list">${winningOutcomes}</ul></details>` : ""}
+      <details class="alternatives"><summary>ほかの交換パターンの期待値を確認</summary><div class="alternative-options">${alternativeOptions}</div></details>
+    </section>
+    ${highLowPayoutSection}
   `;
   result.hidden = false;
 }
@@ -199,11 +207,12 @@ form.addEventListener("submit", (event) => {
 
   button.disabled = true;
   button.textContent = "計算中…";
-  const payoutForHand = useHighLowCheckbox.checked ? highLowPayoutForHand : basePayoutForHand;
+  const useHighLow = useHighLowCheckbox.checked;
+  const payoutForHand = useHighLow ? highLowPayoutForHand : basePayoutForHand;
   // Let the loading label paint before the exhaustive calculation starts.
   window.setTimeout(() => {
     try {
-      renderResult(hand, optimizeDraw(hand, payoutTable.payouts, payoutForHand), payoutForHand);
+      renderResult(hand, optimizeDraw(hand, payoutTable.payouts, payoutForHand), payoutForHand, useHighLow);
     } finally {
       button.disabled = false;
       button.textContent = "最適な交換を計算";
