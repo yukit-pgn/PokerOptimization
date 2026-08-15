@@ -2,56 +2,18 @@ import payoutTable from "./config/payout-table.json";
 import { RANKS, SUITS, cardId, classifyHand, optimizeDraw, validateHand } from "./lib/poker.js";
 import "./styles.css";
 
-const initialHand = [
-  { rank: "A", suit: "S" },
-  { rank: "K", suit: "S" },
-  { rank: "Q", suit: "S" },
-  { rank: "J", suit: "S" },
-  { joker: true },
-];
-
 const suitLabels = { S: "♠", H: "♥", D: "♦", C: "♣" };
-const cardInputs = document.querySelector("#card-inputs");
 const form = document.querySelector("#hand-form");
 const error = document.querySelector("#form-error");
 const result = document.querySelector("#result");
 const button = document.querySelector("#calculate-button");
-
-function cardOptions() {
-  const standardCards = SUITS.flatMap((suit) => RANKS.map((rank) => ({ rank, suit })));
-  return [{ joker: true }, ...standardCards];
-}
+const selectedHandElement = document.querySelector("#selected-hand");
+const cardTable = document.querySelector("#card-table");
+const jokerButton = document.querySelector("#joker-button");
+let hand = [];
 
 function labelForCard(card) {
   return card.joker ? "JOKER" : `${card.rank}${suitLabels[card.suit]}`;
-}
-
-function createSelect(index, selectedCard) {
-  const label = document.createElement("label");
-  label.className = "card-select";
-  label.innerHTML = `<span>カード ${index + 1}</span>`;
-  const select = document.createElement("select");
-  select.name = `card-${index}`;
-  select.dataset.index = String(index);
-
-  for (const card of cardOptions()) {
-    const option = document.createElement("option");
-    option.value = cardId(card);
-    option.textContent = labelForCard(card);
-    option.selected = option.value === cardId(selectedCard);
-    select.append(option);
-  }
-  label.append(select);
-  return label;
-}
-
-function parseCard(value) {
-  if (value === "JOKER") return { joker: true };
-  return { rank: value.slice(0, -1), suit: value.slice(-1) };
-}
-
-function selectedHand() {
-  return [...document.querySelectorAll(".card-select select")].map((select) => parseCard(select.value));
 }
 
 function renderCard(card, emphasis = "") {
@@ -103,13 +65,83 @@ function roleLabel(handType) {
   }[handType];
 }
 
-cardInputs.append(...initialHand.map((card, index) => createSelect(index, card)));
+function renderSelection() {
+  selectedHandElement.innerHTML = "";
+  if (hand.length === 0) {
+    selectedHandElement.innerHTML = '<p class="empty-hand">まだカードが選ばれていません。</p>';
+  } else {
+    hand.forEach((card) => {
+      const item = document.createElement("div");
+      item.className = "selected-card";
+      item.innerHTML = `${renderCard(card)}<button type="button" class="remove-card" aria-label="${labelForCard(card)}を手札から外す">×</button>`;
+      item.querySelector("button").addEventListener("click", () => {
+        hand = hand.filter((itemCard) => cardId(itemCard) !== cardId(card));
+        error.textContent = "";
+        result.hidden = true;
+        renderSelection();
+        renderCardTable();
+      });
+      selectedHandElement.append(item);
+    });
+  }
+  jokerButton.disabled = hand.some((card) => card.joker) || hand.length === 5;
+}
+
+function addToHand(card) {
+  if (hand.length === 5) {
+    error.textContent = "手札は5枚までです。カード右上の×で外してから選択してください。";
+    return;
+  }
+  if (hand.some((item) => cardId(item) === cardId(card))) return;
+  hand = [...hand, card];
+  error.textContent = "";
+  result.hidden = true;
+  renderSelection();
+  renderCardTable();
+}
+
+function renderCardTable() {
+  cardTable.innerHTML = "";
+  const corner = document.createElement("span");
+  corner.className = "table-heading";
+  cardTable.append(corner);
+  RANKS.forEach((rank) => {
+    const heading = document.createElement("span");
+    heading.className = "table-heading";
+    heading.textContent = rank;
+    cardTable.append(heading);
+  });
+  SUITS.forEach((suit) => {
+    const rowHeading = document.createElement("span");
+    rowHeading.className = `suit-heading ${suit === "H" || suit === "D" ? "red" : "black"}`;
+    rowHeading.textContent = suitLabels[suit];
+    cardTable.append(rowHeading);
+    RANKS.forEach((rank) => {
+      const card = { rank, suit };
+      const cardButton = document.createElement("button");
+      cardButton.type = "button";
+      cardButton.className = `table-card ${suit === "H" || suit === "D" ? "red" : "black"}`;
+      cardButton.textContent = rank;
+      cardButton.title = labelForCard(card);
+      cardButton.disabled = hand.length === 5 || hand.some((item) => cardId(item) === cardId(card));
+      cardButton.addEventListener("click", () => addToHand(card));
+      cardTable.append(cardButton);
+    });
+  });
+}
+
+jokerButton.addEventListener("click", () => addToHand({ joker: true }));
+renderSelection();
+renderCardTable();
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
-  const hand = selectedHand();
   error.textContent = "";
   result.hidden = true;
+  if (hand.length !== 5) {
+    error.textContent = "手札を5枚選んでください。";
+    return;
+  }
   try {
     validateHand(hand);
   } catch (validationError) {
