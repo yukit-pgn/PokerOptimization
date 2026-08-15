@@ -21,13 +21,17 @@ function renderCard(card, emphasis = "") {
   return `<span class="playing-card ${card.joker ? "joker" : color} ${emphasis}">${labelForCard(card)}</span>`;
 }
 
-function renderResult(hand, optimization) {
-  const { best } = optimization;
-  const kept = new Set(best.keepIndices);
-  const cards = hand.map((card, index) => {
+function renderDecisionCards(cards, keepIndices) {
+  const kept = new Set(keepIndices);
+  return cards.map((card, index) => {
     const keep = kept.has(index);
     return `<div class="decision-card">${renderCard(card, keep ? "keep" : "discard")}<span class="decision-label ${keep ? "keep" : "discard"}">${keep ? "保持" : "交換"}</span></div>`;
   }).join("");
+}
+
+function renderResult(hand, optimization) {
+  const { best } = optimization;
+  const cards = renderDecisionCards(hand, best.keepIndices);
   const winningOutcomes = Object.entries(best.outcomeCounts)
     .filter(([handType, count]) => count > 0 && (payoutTable.payouts[handType] ?? 0) > 0)
     .map(([handType, count]) => {
@@ -36,11 +40,12 @@ function renderResult(hand, optimization) {
       return `<li><strong>${roleLabel(handType)}</strong><span>${count.toLocaleString()}通り</span><span>確率 ${probability.toFixed(4)}%</span><span>期待値 ${contribution.toFixed(4)}</span></li>`;
     })
     .join("");
-  const alternativeOptions = optimization.options.slice(1).map((option) => {
-    const keptCards = option.keptCards.length ? option.keptCards.map(labelForCard).join(" ") : "なし";
-    const discardedCards = option.discardedCards.length ? option.discardedCards.map(labelForCard).join(" ") : "なし";
-    return `<tr><td>${keptCards}</td><td>${discardedCards}</td><td>${option.expectedValue.toFixed(4)}</td></tr>`;
-  }).join("");
+  const alternativeOptions = optimization.options.slice(1).map((option) => `
+    <article class="alternative-option">
+      <div class="recommendation alternative-cards">${renderDecisionCards(hand, option.keepIndices)}</div>
+      <p>期待値 <strong>${option.expectedValue.toFixed(4)}</strong></p>
+    </article>
+  `).join("");
 
   result.innerHTML = `
     <h2>最適な交換</h2>
@@ -50,7 +55,7 @@ function renderResult(hand, optimization) {
       <div><dt>抽選通り数</dt><dd>${best.outcomeCount.toLocaleString()}通り</dd></div>
     </dl>
     ${winningOutcomes ? `<details><summary>賞金が発生する役の内訳</summary><ul class="outcome-list">${winningOutcomes}</ul></details>` : ""}
-    <details class="alternatives"><summary>ほかの交換パターンの期待値を確認</summary><div class="alternative-table-wrap"><table><thead><tr><th>保持するカード</th><th>交換するカード</th><th>期待値</th></tr></thead><tbody>${alternativeOptions}</tbody></table></div></details>
+    <details class="alternatives"><summary>ほかの交換パターンの期待値を確認</summary><div class="alternative-options">${alternativeOptions}</div></details>
   `;
   result.hidden = false;
 }
