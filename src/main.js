@@ -9,7 +9,6 @@ const result = document.querySelector("#result");
 const button = document.querySelector("#calculate-button");
 const selectedHandElement = document.querySelector("#selected-hand");
 const cardTable = document.querySelector("#card-table");
-const jokerButton = document.querySelector("#joker-button");
 let hand = [];
 
 function labelForCard(card) {
@@ -84,7 +83,6 @@ function renderSelection() {
       selectedHandElement.append(item);
     });
   }
-  jokerButton.disabled = hand.some((card) => card.joker) || hand.length === 5;
 }
 
 function addToHand(card) {
@@ -102,35 +100,30 @@ function addToHand(card) {
 
 function renderCardTable() {
   cardTable.innerHTML = "";
-  const corner = document.createElement("span");
-  corner.className = "table-heading";
-  cardTable.append(corner);
-  RANKS.forEach((rank) => {
-    const heading = document.createElement("span");
-    heading.className = "table-heading";
-    heading.textContent = rank;
-    cardTable.append(heading);
-  });
   SUITS.forEach((suit) => {
-    const rowHeading = document.createElement("span");
-    rowHeading.className = `suit-heading ${suit === "H" || suit === "D" ? "red" : "black"}`;
-    rowHeading.textContent = suitLabels[suit];
-    cardTable.append(rowHeading);
     RANKS.forEach((rank) => {
       const card = { rank, suit };
       const cardButton = document.createElement("button");
       cardButton.type = "button";
       cardButton.className = `table-card ${suit === "H" || suit === "D" ? "red" : "black"}`;
-      cardButton.textContent = rank;
+      cardButton.textContent = labelForCard(card);
       cardButton.title = labelForCard(card);
       cardButton.disabled = hand.length === 5 || hand.some((item) => cardId(item) === cardId(card));
       cardButton.addEventListener("click", () => addToHand(card));
       cardTable.append(cardButton);
     });
   });
+
+  const joker = { joker: true };
+  const jokerCardButton = document.createElement("button");
+  jokerCardButton.type = "button";
+  jokerCardButton.className = "table-card joker-button";
+  jokerCardButton.textContent = "JOKER";
+  jokerCardButton.disabled = hand.length === 5 || hand.some((item) => item.joker);
+  jokerCardButton.addEventListener("click", () => addToHand(joker));
+  cardTable.append(jokerCardButton);
 }
 
-jokerButton.addEventListener("click", () => addToHand({ joker: true }));
 renderSelection();
 renderCardTable();
 
