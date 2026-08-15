@@ -1,0 +1,16 @@
+{
+  "$schema": "./payout-table.schema.json",
+  "name": "default-joker-poker",
+  "description": "One joker; five of a kind enabled; one pair is not paid.",
+  "payouts": {
+    "five_of_a_kind": 7000,
+    "royal_flush": 10000,
+    "straight_flush": 3000,
+    "four_of_a_kind": 1500,
+    "full_house": 800,
+    "flush": 700,
+    "straight": 400,
+    "three_of_a_kind": 200,
+    "two_pair": 200
+  }
+}

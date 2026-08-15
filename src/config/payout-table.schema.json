@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Joker Poker payout table",
+  "type": "object",
+  "required": ["name", "payouts"],
+  "properties": {
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "payouts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "five_of_a_kind",
+        "royal_flush",
+        "straight_flush",
+        "four_of_a_kind",
+        "full_house",
+        "flush",
+        "straight",
+        "three_of_a_kind",
+        "two_pair"
+      ],
+      "properties": {
+        "five_of_a_kind": { "type": "integer", "minimum": 0 },
+        "royal_flush": { "type": "integer", "minimum": 0 },
+        "straight_flush": { "type": "integer", "minimum": 0 },
+        "four_of_a_kind": { "type": "integer", "minimum": 0 },
+        "full_house": { "type": "integer", "minimum": 0 },
+        "flush": { "type": "integer", "minimum": 0 },
+        "straight": { "type": "integer", "minimum": 0 },
+        "three_of_a_kind": { "type": "integer", "minimum": 0 },
+        "two_pair": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

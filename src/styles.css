@@ -1,0 +1,25 @@
+:root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0b1b19; color: #f4efe5; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.page-shell { width: min(900px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 72px; }
+h1, h2, p { margin-top: 0; }
+h1 { font-size: clamp(2rem, 7vw, 3.5rem); margin-bottom: 12px; letter-spacing: -.04em; }
+h2 { font-size: 1.25rem; }
+.eyebrow { color: #e1bc60; font-size: .78rem; letter-spacing: .16em; font-weight: 700; }
+.lead { color: #b9c9c3; max-width: 42rem; line-height: 1.7; }
+.panel, .rules { border: 1px solid #31524d; border-radius: 16px; background: #102825; padding: clamp(20px, 4vw, 32px); margin-top: 28px; }
+.card-inputs { display: grid; grid-template-columns: repeat(5, minmax(100px, 1fr)); gap: 12px; }
+.card-select span { display: block; color: #b9c9c3; font-size: .8rem; margin-bottom: 6px; }
+select, button { width: 100%; border-radius: 8px; font: inherit; }
+select { padding: 10px; color: #f4efe5; background: #173833; border: 1px solid #4e7169; }
+button { margin-top: 20px; cursor: pointer; padding: 13px 18px; color: #17211e; background: #e1bc60; border: 0; font-weight: 800; }
+button:disabled { cursor: wait; opacity: .7; }
+.error { color: #ffae9d; min-height: 1.25em; margin: 12px 0 0; }
+.recommendation { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.playing-card { min-width: 72px; padding: 18px 8px; text-align: center; font-weight: 800; font-size: 1.1rem; border: 2px solid; border-radius: 10px; background: #f7f1e3; }
+.playing-card.black { color: #17211e; }.playing-card.red { color: #ab342b; }.playing-card.joker { color: #7029a8; }
+.playing-card.keep { border-color: #54c092; }.playing-card.discard { border-color: #e56f5d; opacity: .78; }
+.legend { font-size: .85rem; color: #b9c9c3; }.keep-dot, .discard-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }.keep-dot { background: #54c092; }.discard-dot { background: #e56f5d; }
+.summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 24px 0; }.summary div { background: #173833; border-radius: 8px; padding: 12px; }.summary dt { color: #b9c9c3; font-size: .8rem; }.summary dd { margin: 5px 0 0; font-weight: 700; }
+details { color: #cfe0d9; } details ul { padding-left: 1.25rem; line-height: 1.6; }.rules { color: #b9c9c3; line-height: 1.7; }
+@media (max-width: 680px) { .page-shell { padding-top: 32px; }.card-inputs { grid-template-columns: repeat(2, 1fr); }.summary { grid-template-columns: 1fr; }.playing-card { min-width: 58px; } }

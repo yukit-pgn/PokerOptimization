@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ジョーカー1枚入りドローポーカーの最適交換計算機" />
+    <title>Joker Poker Optimizer</title>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header>
+        <p class="eyebrow">ONE DRAW · ONE JOKER</p>
+        <h1>Joker Poker Optimizer</h1>
+        <p class="lead">手札を選ぶと、賞金倍率に基づき期待値が最大になる交換を計算します。</p>
+      </header>
+
+      <section class="panel" aria-labelledby="hand-heading">
+        <h2 id="hand-heading">現在の手札</h2>
+        <form id="hand-form">
+          <div id="card-inputs" class="card-inputs"></div>
+          <p id="form-error" class="error" role="alert"></p>
+          <button id="calculate-button" type="submit">最適な交換を計算</button>
+        </form>
+      </section>
+
+      <section id="result" class="panel result" aria-live="polite" hidden></section>
+
+      <section class="rules" aria-labelledby="rules-heading">
+        <h2 id="rules-heading">計算ルール</h2>
+        <p>53枚（ジョーカー1枚）から5枚。交換は1回です。最初の手札に含まれる5枚は交換後の抽選対象に戻りません。AはA-2-3-4-5と10-J-Q-K-Aの両方で使えます。</p>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
