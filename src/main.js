@@ -1,5 +1,5 @@
 import payoutTable from "./config/payout-table.json";
-import { effectivePayout } from "./lib/high-low.js";
+import { effectivePayout, highLowRounds } from "./lib/high-low.js";
 import { RANKS, SUITS, cardId, optimizeDraw, validateHand } from "./lib/poker.js";
 import "./styles.css";
 
@@ -59,10 +59,18 @@ function renderResult(hand, optimization, payoutForHand, showHighLowPayouts, max
   }).join("");
   const highLowPayouts = Object.entries(payoutTable.payouts)
     .filter(([, basePayout]) => basePayout > 0)
-    .map(([handType, basePayout]) => `
-      <div><dt>${roleLabel(handType)}</dt><dd>${payoutForHand(handType).toFixed(4)}${handType === "royal_flush" ? " <small>（ハイ＆ローなし）</small>" : ""}</dd>
-    </div>
-    `)
+    .map(([handType, basePayout]) => {
+      const rounds = highLowRounds(handType, basePayout, maximumPayout);
+      const suffix = handType === "royal_flush"
+        ? " <small>（ハイ＆ローなし）</small>"
+        : rounds === null
+          ? " <small>（上限対象外）</small>"
+          : ` <small>（${rounds}連勝）</small>`;
+      return `
+        <div><dt>${roleLabel(handType)}</dt><dd>${payoutForHand(handType).toFixed(4)}${suffix}</dd>
+      </div>
+      `;
+    })
     .join("");
   const highLowPayoutSection = showHighLowPayouts ? `
     <section class="high-low-payouts">

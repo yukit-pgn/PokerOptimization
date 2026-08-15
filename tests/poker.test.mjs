@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import payoutTable from "../src/config/payout-table.json" with { type: "json" };
-import { effectivePayout } from "../src/lib/high-low.js";
+import { effectivePayout, highLowRounds } from "../src/lib/high-low.js";
 import { classifyHand, optimizeDraw } from "../src/lib/poker.js";
 
 const payouts = {
@@ -38,5 +38,7 @@ assert.equal(
 );
 assert.equal(effectivePayout("royal_flush", 10000, payoutTable.highLow.winProbabilityByStreak, 7200), 0);
 assert.equal(effectivePayout("four_of_a_kind", 7200, payoutTable.highLow.winProbabilityByStreak, 7200), 0);
+assert.equal(highLowRounds("four_of_a_kind", 200, 7200), 5);
+assert.equal(highLowRounds("royal_flush", 10000), null);
 
 console.log("poker tests passed");
