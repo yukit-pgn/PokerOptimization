@@ -9,6 +9,7 @@ const result = document.querySelector("#result");
 const button = document.querySelector("#calculate-button");
 const selectedHandElement = document.querySelector("#selected-hand");
 const cardTable = document.querySelector("#card-table");
+const resetHandButton = document.querySelector("#reset-hand");
 let hand = [];
 
 function labelForCard(card) {
@@ -83,6 +84,7 @@ function renderSelection() {
       selectedHandElement.append(item);
     });
   }
+  resetHandButton.disabled = hand.length === 0;
 }
 
 function addToHand(card) {
@@ -126,6 +128,14 @@ function renderCardTable() {
 
 renderSelection();
 renderCardTable();
+
+resetHandButton.addEventListener("click", () => {
+  hand = [];
+  error.textContent = "";
+  result.hidden = true;
+  renderSelection();
+  renderCardTable();
+});
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
