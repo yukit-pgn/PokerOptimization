@@ -32,6 +32,7 @@ function renderDecisionCards(cards, keepIndices) {
 function renderResult(hand, optimization) {
   const { best } = optimization;
   const cards = renderDecisionCards(hand, best.keepIndices);
+  const bestWinRate = (winningOutcomeCount(best.outcomeCounts) / best.outcomeCount) * 100;
   const winningOutcomes = Object.entries(best.outcomeCounts)
     .filter(([handType, count]) => count > 0 && (payoutTable.payouts[handType] ?? 0) > 0)
     .map(([handType, count]) => {
@@ -43,10 +44,11 @@ function renderResult(hand, optimization) {
   const alternativeOptions = optimization.options.slice(1).map((option) => {
     const difference = option.expectedValue - best.expectedValue;
     const formattedDifference = `${difference >= 0 ? "+" : ""}${difference.toFixed(4)}`;
+    const winRate = (winningOutcomeCount(option.outcomeCounts) / option.outcomeCount) * 100;
     return `
       <article class="alternative-option">
         <div class="recommendation alternative-cards">${renderDecisionCards(hand, option.keepIndices)}</div>
-        <p>期待値 <strong>${option.expectedValue.toFixed(4)}</strong> <span class="difference">(${formattedDifference})</span></p>
+        <p>期待値 <strong>${option.expectedValue.toFixed(4)}</strong> <span class="difference">(${formattedDifference})</span>　成功率 <strong>${winRate.toFixed(4)}%</strong></p>
       </article>
     `;
   }).join("");
@@ -56,6 +58,7 @@ function renderResult(hand, optimization) {
     <div class="recommendation">${cards}</div>
     <dl class="summary">
       <div><dt>期待値</dt><dd>${best.expectedValue.toFixed(4)}</dd></div>
+      <div><dt>成功率</dt><dd>${bestWinRate.toFixed(4)}%</dd></div>
       <div><dt>抽選通り数</dt><dd>${best.outcomeCount.toLocaleString()}通り</dd></div>
     </dl>
     ${winningOutcomes ? `<details><summary>賞金が発生する役の内訳</summary><ul class="outcome-list">${winningOutcomes}</ul></details>` : ""}
@@ -78,6 +81,13 @@ function roleLabel(handType) {
     one_pair: "ワンペア（賞金なし）",
     no_win: "役なし",
   }[handType];
+}
+
+function winningOutcomeCount(outcomeCounts) {
+  return Object.entries(outcomeCounts).reduce(
+    (total, [handType, count]) => total + ((payoutTable.payouts[handType] ?? 0) > 0 ? count : 0),
+    0,
+  );
 }
 
 function renderSelection() {
