@@ -40,12 +40,16 @@ function renderResult(hand, optimization) {
       return `<li><strong>${roleLabel(handType)}</strong><span>${count.toLocaleString()}通り</span><span>確率 ${probability.toFixed(4)}%</span><span>期待値 ${contribution.toFixed(4)}</span></li>`;
     })
     .join("");
-  const alternativeOptions = optimization.options.slice(1).map((option) => `
-    <article class="alternative-option">
-      <div class="recommendation alternative-cards">${renderDecisionCards(hand, option.keepIndices)}</div>
-      <p>期待値 <strong>${option.expectedValue.toFixed(4)}</strong></p>
-    </article>
-  `).join("");
+  const alternativeOptions = optimization.options.slice(1).map((option) => {
+    const difference = option.expectedValue - best.expectedValue;
+    const formattedDifference = `${difference >= 0 ? "+" : ""}${difference.toFixed(4)}`;
+    return `
+      <article class="alternative-option">
+        <div class="recommendation alternative-cards">${renderDecisionCards(hand, option.keepIndices)}</div>
+        <p>期待値 <strong>${option.expectedValue.toFixed(4)}</strong> <span class="difference">(${formattedDifference})</span></p>
+      </article>
+    `;
+  }).join("");
 
   result.innerHTML = `
     <h2>最適な交換</h2>
