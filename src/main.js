@@ -36,6 +36,11 @@ function renderResult(hand, optimization) {
       return `<li><strong>${roleLabel(handType)}</strong><span>${count.toLocaleString()}通り</span><span>確率 ${probability.toFixed(4)}%</span><span>期待値 ${contribution.toFixed(4)}</span></li>`;
     })
     .join("");
+  const alternativeOptions = optimization.options.slice(1).map((option) => {
+    const keptCards = option.keptCards.length ? option.keptCards.map(labelForCard).join(" ") : "なし";
+    const discardedCards = option.discardedCards.length ? option.discardedCards.map(labelForCard).join(" ") : "なし";
+    return `<tr><td>${keptCards}</td><td>${discardedCards}</td><td>${option.expectedValue.toFixed(4)}</td></tr>`;
+  }).join("");
 
   result.innerHTML = `
     <h2>最適な交換</h2>
@@ -45,6 +50,7 @@ function renderResult(hand, optimization) {
       <div><dt>抽選通り数</dt><dd>${best.outcomeCount.toLocaleString()}通り</dd></div>
     </dl>
     ${winningOutcomes ? `<details><summary>賞金が発生する役の内訳</summary><ul class="outcome-list">${winningOutcomes}</ul></details>` : ""}
+    <details class="alternatives"><summary>ほかの交換パターンの期待値を確認</summary><div class="alternative-table-wrap"><table><thead><tr><th>保持するカード</th><th>交換するカード</th><th>期待値</th></tr></thead><tbody>${alternativeOptions}</tbody></table></div></details>
   `;
   result.hidden = false;
 }
