@@ -113,7 +113,11 @@ function basePayoutForHand(handType) {
 }
 
 function highLowPayoutForHand(handType) {
-  return effectivePayout(handType, payoutTable.payouts[handType] ?? 0);
+  return effectivePayout(
+    handType,
+    payoutTable.payouts[handType] ?? 0,
+    payoutTable.highLow.winProbabilityByStreak,
+  );
 }
 
 function renderSelection() {
