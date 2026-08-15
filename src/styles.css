@@ -15,11 +15,10 @@ button { border-radius: 8px; font: inherit; }
 button { margin-top: 20px; cursor: pointer; padding: 13px 18px; color: #17211e; background: #e1bc60; border: 0; font-weight: 800; }
 button:disabled { cursor: wait; opacity: .7; }
 .error { color: #ffae9d; min-height: 1.25em; margin: 12px 0 0; }
-.recommendation { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.recommendation { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }.decision-card { display: grid; justify-items: center; gap: 6px; }.decision-label { font-size: .82rem; font-weight: 800; }.decision-label.keep { color: #54c092; }.decision-label.discard { color: #e56f5d; }
 .playing-card { min-width: 72px; padding: 18px 8px; text-align: center; font-weight: 800; font-size: 1.1rem; border: 2px solid; border-radius: 10px; background: #f7f1e3; }
 .playing-card.black { color: #17211e; }.playing-card.red { color: #ab342b; }.playing-card.joker { color: #7029a8; }
 .playing-card.keep { border-color: #54c092; }.playing-card.discard { border-color: #e56f5d; opacity: .78; }
-.legend { font-size: .85rem; color: #b9c9c3; }.keep-dot, .discard-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }.keep-dot { background: #54c092; }.discard-dot { background: #e56f5d; }
 .summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 24px 0; }.summary div { background: #173833; border-radius: 8px; padding: 12px; }.summary dt { color: #b9c9c3; font-size: .8rem; }.summary dd { margin: 5px 0 0; font-weight: 700; }
-details { color: #cfe0d9; } details ul { padding-left: 1.25rem; line-height: 1.6; }.rules { color: #b9c9c3; line-height: 1.7; }
-@media (max-width: 680px) { .page-shell { padding-top: 32px; }.summary { grid-template-columns: 1fr; }.playing-card { min-width: 58px; } }
+details { color: #cfe0d9; }.outcome-list { display: grid; gap: 8px; padding-left: 1.25rem; line-height: 1.6; }.outcome-list li { display: grid; grid-template-columns: minmax(150px, 1fr) repeat(3, auto); gap: 16px; }.outcome-list span { color: #b9c9c3; }.rules { color: #b9c9c3; line-height: 1.7; }
+@media (max-width: 680px) { .page-shell { padding-top: 32px; }.summary { grid-template-columns: 1fr; }.playing-card { min-width: 58px; }.outcome-list li { grid-template-columns: 1fr; gap: 2px; } }

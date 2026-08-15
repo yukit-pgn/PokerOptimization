@@ -1,5 +1,5 @@
 import payoutTable from "./config/payout-table.json";
-import { RANKS, SUITS, cardId, classifyHand, optimizeDraw, validateHand } from "./lib/poker.js";
+import { RANKS, SUITS, cardId, optimizeDraw, validateHand } from "./lib/poker.js";
 import "./styles.css";
 
 const suitLabels = { S: "♠", H: "♥", D: "♦", C: "♣" };
@@ -22,28 +22,28 @@ function renderCard(card, emphasis = "") {
 
 function renderResult(hand, optimization) {
   const { best } = optimization;
-  const currentRole = classifyHand(hand);
   const kept = new Set(best.keepIndices);
-  const cards = hand.map((card, index) => renderCard(card, kept.has(index) ? "keep" : "discard")).join("");
-  const keptText = best.keptCards.length ? best.keptCards.map((card) => labelForCard(card)).join("、") : "なし";
-  const discardedText = best.discardedCards.length ? best.discardedCards.map((card) => labelForCard(card)).join("、") : "なし（交換しない）";
+  const cards = hand.map((card, index) => {
+    const keep = kept.has(index);
+    return `<div class="decision-card">${renderCard(card, keep ? "keep" : "discard")}<span class="decision-label ${keep ? "keep" : "discard"}">${keep ? "保持" : "交換"}</span></div>`;
+  }).join("");
   const winningOutcomes = Object.entries(best.outcomeCounts)
     .filter(([handType, count]) => count > 0 && (payoutTable.payouts[handType] ?? 0) > 0)
-    .map(([handType, count]) => `<li>${roleLabel(handType)}: ${count.toLocaleString()}通り</li>`)
+    .map(([handType, count]) => {
+      const probability = (count / best.outcomeCount) * 100;
+      const contribution = (count / best.outcomeCount) * payoutTable.payouts[handType];
+      return `<li><strong>${roleLabel(handType)}</strong><span>${count.toLocaleString()}通り</span><span>確率 ${probability.toFixed(4)}%</span><span>期待値 ${contribution.toFixed(4)}</span></li>`;
+    })
     .join("");
 
   result.innerHTML = `
     <h2>最適な交換</h2>
     <div class="recommendation">${cards}</div>
-    <p class="legend"><span class="keep-dot"></span>保持　<span class="discard-dot"></span>交換</p>
     <dl class="summary">
-      <div><dt>現在の役</dt><dd>${roleLabel(currentRole)}</dd></div>
-      <div><dt>保持するカード</dt><dd>${keptText}</dd></div>
-      <div><dt>交換するカード</dt><dd>${discardedText}</dd></div>
-      <div><dt>期待値</dt><dd>${best.expectedValue.toFixed(4)} 倍</dd></div>
+      <div><dt>期待値</dt><dd>${best.expectedValue.toFixed(4)}</dd></div>
       <div><dt>抽選通り数</dt><dd>${best.outcomeCount.toLocaleString()}通り</dd></div>
     </dl>
-    ${winningOutcomes ? `<details><summary>賞金が発生する役の通り数</summary><ul>${winningOutcomes}</ul></details>` : ""}
+    ${winningOutcomes ? `<details><summary>賞金が発生する役の内訳</summary><ul class="outcome-list">${winningOutcomes}</ul></details>` : ""}
   `;
   result.hidden = false;
 }
