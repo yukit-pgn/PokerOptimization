@@ -4,6 +4,7 @@ import { RANKS, SUITS, cardId, optimizeDraw, validateHand } from "./lib/poker.js
 import "./styles.css";
 
 const suitLabels = { S: "♠", H: "♥", D: "♦", C: "♣" };
+const displayRanks = ["A", ...RANKS.filter((rank) => rank !== "A")];
 const form = document.querySelector("#hand-form");
 const error = document.querySelector("#form-error");
 const result = document.querySelector("#result");
@@ -171,7 +172,7 @@ function addToHand(card) {
 function renderCardTable() {
   cardTable.innerHTML = "";
   SUITS.forEach((suit) => {
-    RANKS.forEach((rank) => {
+    displayRanks.forEach((rank) => {
       const card = { rank, suit };
       const cardButton = document.createElement("button");
       cardButton.type = "button";
