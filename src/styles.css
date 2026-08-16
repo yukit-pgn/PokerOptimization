@@ -14,7 +14,8 @@ h2 { font-size: 1.25rem; }
 button { border-radius: 8px; font: inherit; }
 button { margin-top: 20px; cursor: pointer; padding: 13px 18px; color: #17211e; background: #e1bc60; border: 0; font-weight: 800; }
 button:disabled { cursor: wait; opacity: .7; }
-.usage-guide { margin-top: 16px; color: #cfe0d9; }.usage-guide summary { width: fit-content; cursor: pointer; list-style: none; font-weight: 700; }.usage-guide summary::-webkit-details-marker { display: none; }.usage-guide ol { margin: 10px 0 0; padding-left: 1.5rem; color: #b9c9c3; line-height: 1.7; }
+.usage-guide { margin-top: 16px; color: #cfe0d9; }.usage-guide summary { width: fit-content; cursor: pointer; font-weight: 700; }.usage-guide ul { margin: 10px 0 0; padding-left: 1.5rem; color: #b9c9c3; line-height: 1.7; }
+.usage-guide .usage-note { list-style: none; margin-left: -1.5rem; }
 .error { color: #ffae9d; min-height: 1.25em; margin: 12px 0 0; }.high-low-toggle { display: flex; align-items: center; gap: 8px; width: fit-content; margin-top: 12px; color: #d3e1db; font-size: .92rem; cursor: pointer; }.high-low-toggle input { width: 17px; height: 17px; accent-color: #e1bc60; }.maximum-payout-field { display: flex; align-items: center; gap: 10px; width: fit-content; margin: 10px 0 0 25px; color: #b9c9c3; font-size: .88rem; }.maximum-payout-field input { width: 130px; padding: 7px 9px; border: 1px solid #4e7169; border-radius: 6px; color: #f4efe5; background: #173833; font: inherit; }
 .recommendation { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }.decision-card { display: grid; justify-items: center; gap: 6px; }.decision-label { font-size: .82rem; font-weight: 800; }.decision-label.keep { color: #54c092; }.decision-label.discard { color: #e56f5d; }
 .playing-card { min-width: 72px; padding: 18px 8px; text-align: center; font-weight: 800; font-size: 1.1rem; border: 2px solid; border-radius: 10px; background: #f7f1e3; }
