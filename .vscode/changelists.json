@@ -3,19 +3,8 @@
     {
       "name": "Default",
       "files": [
-        "src/config/payout-table.json",
-        "src/config/payout-table.schema.json",
-        ".github/workflows/deploy-pages.yml",
-        ".gitignore",
-        ".vscode/changelists.json",
         "index.html",
-        "package-lock.json",
-        "package.json",
-        "src/lib/poker.js",
-        "src/main.js",
-        "src/styles.css",
-        "tests/poker.test.mjs",
-        "vite.config.js"
+        "src/styles.css"
       ]
     }
   ],

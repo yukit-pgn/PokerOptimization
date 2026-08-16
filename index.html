@@ -31,6 +31,16 @@
             <label id="maximum-payout-field" class="maximum-payout-field" hidden>最大値（この値以上は対象外）<input id="maximum-payout" type="number" min="0" step="1" value="7200" inputmode="numeric" /></label>
           </div>
           <button id="calculate-button" type="submit">最適な交換を計算</button>
+          <details class="usage-guide">
+            <summary>▶ 使い方</summary>
+            <ol>
+              <li>カード一覧から現在の手札を5枚選び、「最適な交換を計算」を押すと、期待値が最大となる保持・交換を表示します。</li>
+              <li>ハイ＆ローを考慮する場合は、賞金が10,000以上になるまで続けた時の期待値を実質的な賞金額として計算します。</li>
+              <li>ハイ＆ローは最後までやり続けるのが最も期待値が高くなります。7以下ならHigh、9以上ならLow、8は今まで引いたカードが少ない方に賭けてください。</li>
+              <li>最大値を設定すると、ハイ＆ローの賞金額がその値を超えないように中断したときの期待値で計算します。また最大値以上になる役は期待値0として対象外となります。</li>
+              <li>最大値は１日の獲得上限2万を超えないように調整したいときに使用してください。例えば12,800 + 12,800 = 25,600よりも12,800 + 6,400 + 12,800 = 32,000のほうが1日あたりの獲得量が多くなります。</li>
+            </ol>
+          </details>
         </form>
       </section>
 
